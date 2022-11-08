@@ -9,4 +9,5 @@
 The files relevant to the Hands-On app are:
 - templates/home.html
 - tempaltes/index/index2.html
+- static/map.css
 - app.py
