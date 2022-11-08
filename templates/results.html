@@ -1,0 +1,124 @@
+{% extends "index/index.html" %}
+
+{% block Forms %}
+
+<div class="container mx-auto">
+    <h1 class="p-3 border-top border-bottom text-white bg-dark">RECONOCIMIENTO DE IMAGENES</h1>
+    <h5 class="border-bottom">
+    </h5>
+</div>
+
+
+
+{% endblock %}
+
+{% block Script %}
+<script type="module">
+
+    
+    $.ajax({
+        url: "/prediction",
+        type: "POST",
+        dataType: "json",
+    }).done(function (data) {
+
+        var result = data['result'];
+        var additional_food = data['additional_food'];
+        console.log(additional_food)
+
+        generateImgs(result, additional_food);
+
+
+
+    });
+
+
+    function generateImgs(result, additional_food) {
+
+        let divimgs = document.createElement("div");
+        divimgs.setAttribute('id', 'principal')
+        divimgs.setAttribute('class','container mx-auto' );
+
+        
+        var form = document.createElement("form");
+        form.setAttribute('id','formid')
+        form.setAttribute('action', '/tosql');
+        form.setAttribute('method', 'POST');
+        var n = 1;
+        for (const [key, value] of Object.entries(result)) {
+
+            // setting img and label
+            var oImg = document.createElement("img");
+            var urlfor = "{{ url_for('static', filename='key') }}".replace("key", `${key}`);
+            oImg.setAttribute('src', urlfor); // sets the source for img file
+            oImg.setAttribute('class', "width: 10%; max-width: 400px; height: auto; margin-left: 20%;")
+            divimgs.innerHTML += `<br><br><h2>${value}</h2>`;
+            divimgs.appendChild(oImg);
+
+            // setting aditional option for each food
+            var divselect = document.createElement("div");
+            var selectList = document.createElement("select");
+            selectList.class = "ml-4";
+            selectList.multiple = false;
+
+
+            //Create and append the options
+            for (var i = 0; i < additional_food.length; i++) {
+                var option = document.createElement("option");
+                option.value = additional_food[i];
+                option.text = additional_food[i];
+                selectList.appendChild(option);
+            }
+
+            selectList.setAttribute('name', `food_selection${n}`);
+            console.log(`food_selection${n}`)
+            divselect.innerHTML = '<br>Si tu comida se corresponde con la prediccion, no marques ninguna casilla. En caso contrario, haznos saber cual es tu plato principal<br>'
+            divselect.appendChild(selectList);
+
+
+            // setting aditional option for each food
+            var divselect2 = document.createElement("div");
+            var selectList2 = document.createElement("select");
+            selectList2.class = "ml-4";
+            selectList2.multiple = true;
+
+
+            //Create and append the options
+            for (var i = 0; i < additional_food.length; i++) {
+                var option = document.createElement("option");
+                option.value = additional_food[i];
+                option.text = additional_food[i];
+                selectList2.appendChild(option);
+            }
+
+            selectList2.setAttribute('name', `food_selection2${n}`);
+            divselect2.innerHTML = '<br>¿Que otros alimentos contiene tu plato?<br>'
+            divselect2.appendChild(selectList2);
+            n += 1;
+
+
+            form.appendChild(divselect);
+            form.appendChild(divselect2);
+        
+            
+
+
+        }
+
+        var divbutton = document.createElement("div");
+        var button = document.createElement("button");
+        button.setAttribute('type', 'submit');
+        button.setAttribute('name', 'button');
+        button.innerHTML = 'Guardar Comida';
+        divbutton.appendChild(button);
+        form.appendChild(divbutton);
+        divimgs.appendChild(form);
+        document.body.appendChild(divimgs)
+
+
+
+    }
+
+
+</script>
+{% endblock %}
