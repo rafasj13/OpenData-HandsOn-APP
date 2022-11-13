@@ -17,39 +17,37 @@
                 <h5>Filter by:</h5>
                 <div class="col">
                     <label>District</label>
-                    <select class="form-select bg-dark text-light selectpicker" name="origin">
+                    <select id="filterdistrict" class="form-select bg-dark text-light selectpicker" name="district">
                         <option selected value="0"> Select </option>
-                        <option value="1">Moncloa</option>
-                        <option value="2">Latina</option>
-                        <option value="3">Chamberí</option>
-                        <option value="4">Centro</option>
+                        <option value="01">CENTRO</option>
+                        <option value="02">ARGANZUELA</option>
+                        <option value="03">RETIRO</option>
+                        <option value="04">SALAMANCA</option>
+                        <option value="05">CHAMARTÍN</option>
+                        <option value="06">TETUÁN</option>
+                        <option value="07">CHAMBERÍ</option>
+                        <option value="08">FUENCARRAL-EL PARDO</option>
+                        <option value="09">MONCLOA-ARAVACA</option>
+                        <option value="10">LATINA</option>
+                        <option value="11">CARABANCHEL</option>
+                        <option value="15">CIUDAD LINEAL</option>
+
                     </select>
                 </div>
                 <div class="col">
-                    <label>Distance</label>
-                    <select class="form-select bg-dark text-light selectpicker" name="origin">
+                    <label>Number</label>
+                    <select id="filterlimit" class="form-select bg-dark text-light selectpicker" name="limit">
                         <option selected value="0"> Select </option>
-                        <option value="1">1km</option>
-                        <option value="2">3km</option>
-                        <option value="3">6km</option>
-                        <option value="4">12km</option>
-                    </select>
-                </div>
-                <div class="col">
-                    <label>Color</label>
-                    <select class="form-select bg-dark text-light selectpicker" name="origin">
-                        <option selected value="0"> Select </option>
-                        <option value="1">Blue</option>
-                        <option value="2">Red</option>
-                        <option value="3">Green</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="10">100</option>
+
+
                     </select>
                 </div>
             </div>
             <div class="row">
-                <div class="col">
-                    <input class="form-control me-2" type="search" placeholder="Find a Parking Meter"
-                        aria-label="Search">
-                </div>
                 <div class="col">
                     <button id='search' class="btn btn-secondary btn-light-outline-success"
                         type="button">Search</button>
@@ -67,28 +65,54 @@
 
 
 
+
     {% endblock %}
 
     {% block Script %}
 
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
     <script type="module">
 
         var latitude, longitude;
-        var map, layer, route;
+        var map, layer, markerLayer;
+        var latlon;
+        var query;
+
+        // import {toLatLon} from "{{ url_for('static', filename='js/index.js') }}";
 
         var search = document.getElementById('search')
         search.addEventListener("click", () => {
+            var filterdistrict = document.getElementById("filterdistrict").value
+            var filterlimit = document.getElementById("filterlimit").value
 
+            if (filterdistrict != '0' && filterlimit == '0') {
+                query = "http://localhost:4000/sparql?query=PREFIX%20rdf%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0APREFIX%20rdfs%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0APREFIX%20ns1%3A%20%3Chttp%3A%2F%2Fwww.group10.org%2Fpl%2Fontology%2FParkingLotsMadrid%23%3E%0A%0A%0ASELECT%20%3Fpmeter%20%3Flatitude%20%3Flongitude%20WHERE%20%7B%20%0A%20%20%20%20%3Fpmeter%20a%20ns1%3AParkingMeter.%20%0A%20%20%20%20%3Fpmeter%20ns1%3AhasLocation%20%3Flocation.%0A%20%20%20%20%3Flocation%20ns1%3AhasLongitude%20%3Flongitude.%0A%20%20%20%20%3Flocation%20ns1%3AhasLatitude%20%3Flatitude%20.%0A%20%20%20%20%3Fpmeter%20ns1%3AhasDistrict%20%3Chttp%3A%2F%2Fwww.group10.org%2Fpl%2Fresource%2FDistrict%2FDdistrictnumber%3E%0A%7D%20".replace("districtnumber", filterdistrict);
+
+            } else if (filterdistrict == '0' && filterlimit != '0') {
+                query = 'http://localhost:4000/sparql?query=PREFIX%20rdf%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0APREFIX%20rdfs%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0APREFIX%20ns1%3A%20%3Chttp%3A%2F%2Fwww.group10.org%2Fpl%2Fontology%2FParkingLotsMadrid%23%3E%0A%0A%0ASELECT%20%3Fpmeter%20%3Flatitude%20%3Flongitude%20WHERE%20%7B%20%0A%20%20%20%20%3Fpmeter%20a%20ns1%3AParkingMeter.%20%0A%20%20%20%20%3Fpmeter%20ns1%3AhasLocation%20%3Flocation.%0A%20%20%20%20%3Flocation%20ns1%3AhasLongitude%20%3Flongitude.%0A%20%20%20%20%3Flocation%20ns1%3AhasLatitude%20%3Flatitude%20%0A%7D%20LIMIT%20limnumber'.replace("limnumber", filterlimit);
+
+            } else if (filterdistrict != '0' && filterlimit != '0') {
+                query = "http://localhost:4000/sparql?query=PREFIX%20rdf%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0APREFIX%20rdfs%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0APREFIX%20ns1%3A%20%3Chttp%3A%2F%2Fwww.group10.org%2Fpl%2Fontology%2FParkingLotsMadrid%23%3E%0A%0A%0ASELECT%20%3Fpmeter%20%3Flatitude%20%3Flongitude%20WHERE%20%7B%20%0A%20%20%20%20%3Fpmeter%20a%20ns1%3AParkingMeter.%20%0A%20%20%20%20%3Fpmeter%20ns1%3AhasLocation%20%3Flocation.%0A%20%20%20%20%3Flocation%20ns1%3AhasLongitude%20%3Flongitude.%0A%20%20%20%20%3Flocation%20ns1%3AhasLatitude%20%3Flatitude%20.%0A%20%20%20%20%3Fpmeter%20ns1%3AhasDistrict%20%3Chttp%3A%2F%2Fwww.group10.org%2Fpl%2Fresource%2FDistrict%2FDdistrictnumber%3E%0A%7D%20LIMIT%20limnumber".replace("districtnumber", filterdistrict).replace("limnumber", filterlimit);
+            } else if (filterdistrict == '0' && filterlimit == '0') {
+                query = "http://localhost:4000/sparql?query=PREFIX%20rdf%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0APREFIX%20rdfs%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0APREFIX%20ns1%3A%20%3Chttp%3A%2F%2Fwww.group10.org%2Fpl%2Fontology%2FParkingLotsMadrid%23%3E%0A%0A%0ASELECT%20%3Fpmeter%20%3Flatitude%20%3Flongitude%20WHERE%20%7B%20%0A%20%20%20%20%3Fpmeter%20a%20ns1%3AParkingMeter.%20%0A%20%20%20%20%3Fpmeter%20ns1%3AhasLocation%20%3Flocation.%0A%20%20%20%20%3Flocation%20ns1%3AhasLongitude%20%3Flongitude.%0A%20%20%20%20%3Flocation%20ns1%3AhasLatitude%20%3Flatitude%20.%0A%7D%20";
+            }
+
+
+            console.log(query)
             $.ajax({
-                url: "http://localhost:8080/sparql#query=PREFIX%20rdf%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0APREFIX%20rdfs%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0APREFIX%20ns1%3A%20%3Chttp%3A%2F%2Fwww.group10.org%2Fpl%2Fontology%2FParkingLotsMadrid%23%3E%20%0A%0ASELECT%20%3Fpmeter%20%3Flatitude%20%3Flongitude%20WHERE%20%7B%20%0A%20%20%20%20%3Fpmeter%20a%20ns1%3AParkingMeter.%20%0A%20%20%20%20%3Fpmeter%20ns1%3AhasLocation%20%3Flocation.%0A%20%20%20%20%3Flocation%20ns1%3AhasLongitude%20%3Flongitude.%0A%20%20%20%20%3Flocation%20ns1%3AhasLatitude%20%3Flatitude%0A%7D",
-                type: "POST",
-                dataType: "json",
+                url: query,
+                type: "GET",
+                dataType: 'json',
+
             }).done(function (data) {
 
-                latitude = data['latitude']
-                longitude = data['longitude']
+                var result = data['results']['bindings']
 
-                waypoints(latitude, longitude);
+                if (map != undefined) {
+                    map = map.remove();
+                }
+                drawmap(result);
 
             });
 
@@ -97,13 +121,44 @@
         });
 
 
-        GPS();
 
-        function waypoints(latitude, longitude) {
+        map = L.map('map').setView([40.41606370407077, -3.7064964857770835], 15);
+        layer = L.tileLayer('https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=IWiZp7L76Kmhtju5zNNZ', {
+            attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
+        });
+        layer.addTo(map);
+        markerLayer = L.layerGroup().addTo(map);
 
-            for (let i = 0; i < latitude.length; i++) {
-                L.marker([latitude[i], longitude[i]]).addTo(map);
+
+        function waypoints(result) {
+
+            for (let i = 0; i < result.length; i++) {
+                latitude = Number(result[i]['latitude'].value)
+                longitude = Number(result[i]['longitude'].value)
+                latlon = toLatLon(longitude, latitude, 30, 'T')
+                console.log(latlon);
+
+
+                L.marker([latlon.latitude, latlon.longitude]).addTo(markerLayer);
             }
+
+        }
+
+        function drawmap(result) {
+            latitude = Number(result[0]['latitude'].value)
+            longitude = Number(result[0]['longitude'].value)
+
+            latlon = toLatLon(longitude, latitude, 30, 'T')
+            console.log(latlon);
+
+            map = L.map('map').setView([latlon.latitude, latlon.longitude], 15);
+            layer = L.tileLayer('https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=IWiZp7L76Kmhtju5zNNZ', {
+                attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
+            });
+            layer.addTo(map);
+            markerLayer = L.layerGroup().addTo(map);
+
+            waypoints(result);
 
         }
 
@@ -111,17 +166,20 @@
 
             latitude = position.coords.latitude;
             longitude = position.coords.longitude;
-
+            console.log(latitude, longitude)
             //now that we have the coordiantes we can create the map, but it can't be created multiple
             //times, otherwise we will get an error 
             //we must set some initial coordinates, the zoom and the layer
             //this layer links corresponds to the map that we are using, but there are many others in https://leafletjs.com/ 
             if (map == undefined) {
+
                 map = L.map('map').setView([latitude, longitude], 17);
                 var layer = L.tileLayer('https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=IWiZp7L76Kmhtju5zNNZ', {
                     attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
                 });
                 layer.addTo(map);
+
+
             }
             //the initial marker will be added
             // var mark = L.marker([latitude, longitude]).addTo(map);
