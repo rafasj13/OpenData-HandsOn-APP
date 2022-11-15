@@ -1,0 +1,76 @@
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <title>Task 2 - GPS </title>
+
+  <!--STYLE-->
+  <link rel=stylesheet href="{{ url_for('static', filename='css/styleLocation.css') }}">
+
+
+</head>
+
+<body>
+  <button id="button1">Welcome!</button>
+
+  <script>
+    var Npaths = "{{Npaths}}"
+
+    console.log(Number(Npaths))
+
+    var city, country, latitude, longitude, accuracy;
+
+    //store the first button in a variable
+    const button = document.querySelector("#button1");
+    
+
+    //now we create another 2 buttons to give the user freedom of 
+    //choosing the next action
+    const trackingButton = document.createElement('button');
+    trackingButton.type = 'button';
+    trackingButton.id = 'trackingButton'
+    trackingButton.innerText = 'Start Tracking';
+
+    const previousPathButton = document.createElement('button');
+    previousPathButton.type = 'button';
+    previousPathButton.id = 'previousPathButton'
+    previousPathButton.innerText = 'Last Path';
+
+
+    //these two buttons won't appear unless the button we created
+    //in first place is clicked
+    button.addEventListener("click", () => {
+
+      button.innerText = "Choose your option ";
+
+      //delay of 2s to read the text
+      setTimeout(function () {
+        button.remove();
+        document.body.appendChild(trackingButton);
+        document.body.appendChild(previousPathButton);
+      }, 2000);
+
+
+
+
+
+    });
+
+    //click to start tracking the user's coordinates 
+    trackingButton.addEventListener("click", () => {
+      window.open("http://127.0.0.1:5000/TrackingMap");
+    });
+
+    //click to check the previous paths availables
+    previousPathButton.addEventListener("click", () => {
+      if(Npaths == 0){
+        alert("There aren't paths availables");
+      } else{
+      window.open("http://127.0.0.1:5000/LastPath");}
+    });
+
+  </script>
+
+</body>
+
+</html>

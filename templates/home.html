@@ -3,7 +3,7 @@
 {% block Forms %}
 
 <div class="container mx-auto">
-    <h1 class="p-3 border-top border-bottom text-white bg-dark">ParkAPP</h1>
+    <h1 class="p-3 border-top border-bottom text-white bg-dark">OpenParkingMadrid</h1>
     <h5 class="border-bottom"></h5>
     <br>
 </div>
@@ -52,6 +52,10 @@
                     <button id='search' class="btn btn-secondary btn-light-outline-success"
                         type="button">Search</button>
                 </div>
+                <div class="col">
+                    <button id='helio' class="btn btn-secondary btn-light-outline-success"
+                        type="button">Helio</button>
+                </div>
             </div>
 
 
@@ -77,11 +81,23 @@
         var latitude, longitude;
         var map, layer, markerLayer;
         var latlon;
-        var query;
+        var query=0;
 
         // import {toLatLon} from "{{ url_for('static', filename='js/index.js') }}";
 
-        var search = document.getElementById('search')
+        var search = document.getElementById('search');
+        var helio = document.getElementById('helio');
+        console.log(helio)
+        helio.addEventListener("click", ()=>{
+            console.log(query)
+            if(query==0){
+                window.open("http://localhost:4000");
+            }
+            else{
+                window.open(query);
+            }
+            
+        });
         search.addEventListener("click", () => {
             var filterdistrict = document.getElementById("filterdistrict").value
             var filterlimit = document.getElementById("filterlimit").value
@@ -97,7 +113,8 @@
             } else if (filterdistrict == '0' && filterlimit == '0') {
                 query = "http://localhost:4000/sparql?query=PREFIX%20rdf%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0APREFIX%20rdfs%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0APREFIX%20ns1%3A%20%3Chttp%3A%2F%2Fwww.group10.org%2Fpl%2Fontology%2FParkingLotsMadrid%23%3E%0A%0A%0ASELECT%20%3Fpmeter%20%3Flatitude%20%3Flongitude%20WHERE%20%7B%20%0A%20%20%20%20%3Fpmeter%20a%20ns1%3AParkingMeter.%20%0A%20%20%20%20%3Fpmeter%20ns1%3AhasLocation%20%3Flocation.%0A%20%20%20%20%3Flocation%20ns1%3AhasLongitude%20%3Flongitude.%0A%20%20%20%20%3Flocation%20ns1%3AhasLatitude%20%3Flatitude%20.%0A%7D%20";
             }
-
+        
+       
 
             console.log(query)
             $.ajax({
