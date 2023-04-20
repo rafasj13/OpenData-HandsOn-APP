@@ -2,7 +2,9 @@
 # HandsOn-APP
 
 Open Data Project. 
-- Retrieves information about parking lots from the community of madrid
+- Retrieves information about parking lots from the community of madrid with an interactive map
+
+\hline
 
 1. Create a virtual environment
 2. $pip install requirements.txt
