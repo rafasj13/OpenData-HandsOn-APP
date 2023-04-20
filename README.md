@@ -1,6 +1,9 @@
 
 # HandsOn-APP
 
+Open Data Project. 
+- Retrieves information about parking lots from the community of madrid
+
 1. Create a virtual environment
 2. $pip install requirements.txt
 3. run "python app.py" to run the Hands-On app
